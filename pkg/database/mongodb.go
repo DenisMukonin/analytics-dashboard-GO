@@ -38,3 +38,20 @@ func InitMongoDB(mongoURI string) (*mongo.Client, *mongo.Database, error) {
 
 	return client, db, nil
 }
+
+func createIndexes(db *mongo.Database) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	indexModel := mongo.IndexModel{
+		Keys: options.Index().SetKey("timestamp", "userId"),
+	}
+	db.Collection("events").Indexes().CreateOne(ctx, indexModel)
+
+	indexModel = mongo.IndexModel{
+		Keys: options.Index().SetKey("date", "metricName"),
+	}
+	db.Collection("metrics").Indexes().CreateOne(ctx, indexModel)
+
+	fmt.Println("Indexes created")
+}
